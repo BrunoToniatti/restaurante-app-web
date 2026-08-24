@@ -1,0 +1,131 @@
+<mat-toolbar color="primary" class="toolbar">
+  <mat-icon class="toolbar-logo">restaurant</mat-icon>
+  <span class="toolbar-title">VYU Restaurantes</span>
+  <span class="spacer"></span>
+  @if (currentUser) {
+    <span class="user-name">{{ currentUser.name }}</span>
+  }
+  <button mat-icon-button (click)="logout()" matTooltip="Sair">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>
+
+<div class="page-content">
+  <div class="form-container">
+    <mat-card class="form-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="header-icon">add_business</mat-icon>
+        <mat-card-title>Cadastrar Restaurante</mat-card-title>
+        <mat-card-subtitle>Preencha os dados do seu estabelecimento</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+          <h3 class="section-title">Informações Básicas</h3>
+          <mat-divider></mat-divider>
+
+          <div class="fields-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nome do Restaurante</mat-label>
+              <input matInput formControlName="name" placeholder="Ex: Pizzaria do João" />
+              <mat-icon matPrefix>storefront</mat-icon>
+              @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+                <mat-error>Campo obrigatório</mat-error>
+              }
+              @if (form.get('name')?.hasError('maxlength') && form.get('name')?.touched) {
+                <mat-error>Máximo de 200 caracteres</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="fields-row two-col">
+            <mat-form-field appearance="outline">
+              <mat-label>CNPJ</mat-label>
+              <input
+                matInput
+                formControlName="cnpj"
+                placeholder="00.000.000/0000-00"
+                (input)="formatCnpj($event)"
+                maxlength="18"
+              />
+              <mat-icon matPrefix>badge</mat-icon>
+              @if (form.get('cnpj')?.hasError('required') && form.get('cnpj')?.touched) {
+                <mat-error>Campo obrigatório</mat-error>
+              }
+              @if (form.get('cnpj')?.hasError('cnpjInvalido') && form.get('cnpj')?.touched) {
+                <mat-error>CNPJ inválido (14 dígitos)</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Telefone de Contato</mat-label>
+              <input
+                matInput
+                formControlName="contact_phone"
+                placeholder="(00) 00000-0000"
+                (input)="formatPhone($event)"
+                maxlength="15"
+              />
+              <mat-icon matPrefix>phone</mat-icon>
+              @if (form.get('contact_phone')?.hasError('required') && form.get('contact_phone')?.touched) {
+                <mat-error>Campo obrigatório</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Endereço Completo</mat-label>
+            <textarea
+              matInput
+              formControlName="address"
+              placeholder="Rua, número, bairro, cidade, estado"
+              rows="3"
+            ></textarea>
+            <mat-icon matPrefix>location_on</mat-icon>
+            @if (form.get('address')?.hasError('required') && form.get('address')?.touched) {
+              <mat-error>Campo obrigatório</mat-error>
+            }
+          </mat-form-field>
+
+          <h3 class="section-title">Presença Online <span class="optional">(opcional)</span></h3>
+          <mat-divider></mat-divider>
+
+          <div class="fields-row two-col">
+            <mat-form-field appearance="outline">
+              <mat-label>Site Oficial</mat-label>
+              <input matInput formControlName="site" placeholder="https://seusite.com.br" />
+              <mat-icon matPrefix>language</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Instagram</mat-label>
+              <input matInput formControlName="instagram" placeholder="@seurestaurante" />
+              <mat-icon matPrefix>photo_camera</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="actions">
+            <button
+              mat-flat-button
+              color="primary"
+              type="submit"
+              class="submit-btn"
+              [disabled]="loading"
+            >
+              @if (loading) {
+                <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+                Salvando...
+              } @else {
+                <ng-container>
+                  <mat-icon>save</mat-icon>
+                  Cadastrar Restaurante
+                </ng-container>
+              }
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
