@@ -1,8 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Troque pelo IP da sua máquina na rede local quando testar via QR code
-export const API_URL = 'http://localhost:8000/api';
+export const API_URL = 'http://192.168.15.102:8000/api';
 
 const api = axios.create({ baseURL: API_URL });
 
