@@ -3,12 +3,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 
-from main.permissions import IsManager, IsRestaurantOwner
+from main.permissions import IsManager, IsRestaurantOwner, IsAdmin
 from main.serializers.restaurant_serializers import (
     RestaurantCreateSerializer,
     RestaurantUpdateSerializer,
     RestaurantAdminResponseSerializer,
     RestaurantPublicResponseSerializer,
+    RestaurantTransferSerializer,
 )
 from main.services.restaurant_service import RestaurantService
 
@@ -122,6 +123,46 @@ class ManagerRestaurantDetailView(APIView):
                 "data": None
             },
             status=status.HTTP_204_NO_CONTENT
+        )
+
+
+class AdminRestaurantListView(APIView):
+    """
+    Admin: list all restaurants across all managers.
+    """
+    permission_classes = [IsAdmin]
+
+    def get(self, request):
+        restaurants = RestaurantService.get_all_restaurants()
+        serializer = RestaurantAdminResponseSerializer(restaurants, many=True)
+        return Response(
+            {"status": "success", "status_code": 200, "count": restaurants.count(), "data": serializer.data},
+            status=status.HTTP_200_OK
+        )
+
+
+class AdminRestaurantTransferView(APIView):
+    """
+    Admin: transfer a restaurant to another manager.
+    """
+    permission_classes = [IsAdmin]
+
+    def post(self, request, pk):
+        from rest_framework.exceptions import NotFound
+        try:
+            from main.models.restaurant import Restaurant
+            restaurant = Restaurant.objects.get(pk=pk)
+        except Restaurant.DoesNotExist:
+            raise NotFound("Restaurante não encontrado.")
+
+        serializer = RestaurantTransferSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        restaurant = RestaurantService.transfer_restaurant(
+            restaurant, serializer.validated_data['new_manager_id']
+        )
+        return Response(
+            {"status": "success", "status_code": 200, "data": RestaurantAdminResponseSerializer(restaurant).data},
+            status=status.HTTP_200_OK
         )
 
 

@@ -117,6 +117,13 @@ class RestaurantAdminResponseSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class RestaurantTransferSerializer(serializers.Serializer):
+    """
+    Admin-only serializer for transferring restaurant ownership to another manager.
+    """
+    new_manager_id = serializers.IntegerField()
+
+
 class RestaurantPublicResponseSerializer(serializers.ModelSerializer):
     """
     Public serializer for Mobile App consumers and anonymous visitors.

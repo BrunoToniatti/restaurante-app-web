@@ -12,4 +12,10 @@ urlpatterns = [
 
     # RESTAURANT
     path('restaurants/', include('main.urls.restaurant_urls')),
+
+    # QUEUE
+    path('queues/', include('main.urls.queue_urls')),
+
+    # BUG REPORTS
+    path('reports/', include('main.urls.bug_report_urls')),
 ]
