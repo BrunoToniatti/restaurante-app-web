@@ -71,6 +71,7 @@ class UserManagerResponseSerializer(serializers.ModelSerializer):
             'path_photo',
             'email',
             'username',
+            'is_admin',
             'restaurant_count',
             'last_login',
             'created_at',
