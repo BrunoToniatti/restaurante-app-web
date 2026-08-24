@@ -1,54 +1,31 @@
-.toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-
-  .toolbar-logo {
-    margin-right: 8px;
-  }
-
-  .toolbar-title {
-    font-weight: 700;
-    font-size: 1.1rem;
-  }
-
-  .spacer {
-    flex: 1;
-  }
-
-  .user-name {
-    margin-right: 8px;
-    font-size: 0.9rem;
-    opacity: 0.9;
-  }
-}
-
-.page-content {
-  min-height: calc(100vh - 64px);
-  background-color: #f5f5f5;
-  padding: 32px 16px;
+.page-container {
+  padding: 0;
 }
 
 .form-container {
   max-width: 760px;
-  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 24px;
+
+  .page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a237e;
+    margin: 0 0 4px;
+  }
+
+  .page-sub {
+    color: #666;
+    margin: 0;
+    font-size: 0.9rem;
+  }
 }
 
 .form-card {
   border-radius: 16px !important;
   padding: 8px;
-
-  mat-card-header {
-    margin-bottom: 8px;
-  }
-
-  .header-icon {
-    color: #3f51b5;
-    font-size: 36px;
-    width: 36px;
-    height: 36px;
-  }
 }
 
 .section-title {
@@ -66,9 +43,7 @@
   }
 }
 
-mat-divider {
-  margin-bottom: 16px;
-}
+mat-divider { margin-bottom: 16px; }
 
 .fields-row {
   margin-top: 16px;
@@ -78,9 +53,7 @@ mat-divider {
     grid-template-columns: 1fr 1fr;
     gap: 16px;
 
-    @media (max-width: 600px) {
-      grid-template-columns: 1fr;
-    }
+    @media (max-width: 600px) { grid-template-columns: 1fr; }
   }
 }
 
@@ -92,6 +65,7 @@ mat-divider {
 .actions {
   display: flex;
   justify-content: flex-end;
+  gap: 12px;
   margin-top: 24px;
   padding-bottom: 8px;
 }

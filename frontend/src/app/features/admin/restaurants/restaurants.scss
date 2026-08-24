@@ -16,10 +16,20 @@
   margin: 0;
 }
 
-.search-field { width: 280px; }
+.header-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.search-field { width: 240px; }
+
+.form-card {
+  border-radius: 12px !important;
+  margin-bottom: 20px;
+}
+
+.row { display: flex; gap: 12px; }
+.flex1 { flex: 1; }
+.flex2 { flex: 2; }
+
+.submit-btn { width: 100%; height: 48px; margin-top: 8px; border-radius: 8px !important; }
 
 .loading-center { display: flex; justify-content: center; padding: 64px; }
-
 .full-width { width: 100%; }
-
 .empty { text-align: center; color: #999; padding: 32px; }

@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -33,7 +33,7 @@ function cnpjValidator(control: AbstractControl) {
     MatIconModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    MatToolbarModule,
+    RouterModule,
     MatDividerModule,
   ],
   templateUrl: './create-restaurant.html',
@@ -94,10 +94,8 @@ export class CreateRestaurantComponent {
     this.restaurantService.create(payload).subscribe({
       next: (res) => {
         this.loading = false;
-        this.snackBar.open(`Restaurante "${res.data.name}" criado com sucesso!`, 'OK', {
-          duration: 5000,
-        });
-        this.form.reset();
+        this.snackBar.open(`Restaurante "${res.data.name}" criado com sucesso!`, 'OK', { duration: 4000 });
+        this.router.navigate(['/gerente/restaurantes']);
       },
       error: (err) => {
         this.loading = false;
