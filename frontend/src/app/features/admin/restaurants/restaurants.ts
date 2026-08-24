@@ -10,7 +10,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatChipsModule } from '@angular/material/chips';
 import { RestaurantService } from '../../../core/services/restaurant';
 import { RestaurantResponse } from '../../../core/models/restaurant.models';
 import { TransferDialogComponent } from './transfer-dialog';
@@ -22,7 +21,7 @@ import { TransferDialogComponent } from './transfer-dialog';
     CommonModule, FormsModule, ReactiveFormsModule,
     MatCardModule, MatTableModule, MatButtonModule, MatIconModule,
     MatInputModule, MatFormFieldModule, MatDialogModule, MatSnackBarModule,
-    MatProgressSpinnerModule, MatChipsModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './restaurants.html',
   styleUrl: './restaurants.scss',
@@ -31,12 +30,24 @@ export class RestaurantsComponent implements OnInit {
   private restaurantSvc = inject(RestaurantService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  private fb = inject(FormBuilder);
 
   loading = true;
+  saving = false;
+  showForm = false;
   restaurants: RestaurantResponse[] = [];
   filtered: RestaurantResponse[] = [];
   search = '';
   displayedColumns = ['name', 'cnpj', 'contact_phone', 'address', 'actions'];
+
+  createForm = this.fb.group({
+    name: ['', Validators.required],
+    cnpj: ['', Validators.required],
+    contact_phone: ['', Validators.required],
+    address: ['', Validators.required],
+    site: [''],
+    instagram: [''],
+  });
 
   ngOnInit(): void { this.load(); }
 
@@ -56,6 +67,35 @@ export class RestaurantsComponent implements OnInit {
     this.filtered = this.restaurants.filter(r =>
       r.name.toLowerCase().includes(q) || r.cnpj.includes(q)
     );
+  }
+
+  formatCnpj(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let v = input.value.replace(/\D/g, '').slice(0, 14);
+    if (v.length > 12) v = `${v.slice(0,2)}.${v.slice(2,5)}.${v.slice(5,8)}/${v.slice(8,12)}-${v.slice(12)}`;
+    else if (v.length > 8) v = `${v.slice(0,2)}.${v.slice(2,5)}.${v.slice(5,8)}/${v.slice(8)}`;
+    else if (v.length > 5) v = `${v.slice(0,2)}.${v.slice(2,5)}.${v.slice(5)}`;
+    else if (v.length > 2) v = `${v.slice(0,2)}.${v.slice(2)}`;
+    input.value = v;
+    this.createForm.get('cnpj')?.setValue(v, { emitEvent: false });
+  }
+
+  submitCreate(): void {
+    if (this.createForm.invalid) return;
+    this.saving = true;
+    this.restaurantSvc.adminCreate(this.createForm.value as any).subscribe({
+      next: () => {
+        this.snackBar.open('Restaurante criado!', 'OK', { duration: 3000 });
+        this.createForm.reset();
+        this.showForm = false;
+        this.load();
+      },
+      error: (err) => {
+        const msg = err?.error?.errors ? Object.values(err.error.errors).flat().join(' ') : 'Erro ao criar restaurante.';
+        this.snackBar.open(msg, 'Fechar', { duration: 4000 });
+      },
+      complete: () => { this.saving = false; },
+    });
   }
 
   openTransfer(restaurant: RestaurantResponse): void {
