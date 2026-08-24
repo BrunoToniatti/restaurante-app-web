@@ -3,11 +3,24 @@ export interface LoginRequest {
   password: string;
 }
 
-export interface UserManager {
-  id: number;
-  name: string;
+export interface RegisterRequest {
+  first_name: string;
+  last_name: string;
   email: string;
   username: string;
+  phone_number: string;
+  password: string;
+}
+
+export interface UserManager {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  username: string;
+  phone_number: string;
+  is_admin: boolean;
+  restaurant_count: number;
 }
 
 export interface AuthResponse {
@@ -21,4 +34,5 @@ export interface ApiResponse<T> {
   status: string;
   status_code: number;
   data: T;
+  count?: number;
 }

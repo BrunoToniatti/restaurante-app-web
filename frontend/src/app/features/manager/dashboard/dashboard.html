@@ -1,0 +1,44 @@
+<div class="dashboard">
+  <h1 class="page-title">Meu Painel</h1>
+
+  @if (loading) {
+    <div class="loading-center"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <div class="stats-grid">
+      <mat-card class="stat-card restaurant-card" routerLink="/gerente/restaurantes">
+        <mat-card-content>
+          <div class="stat-icon"><mat-icon>store</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.restaurants }}</span>
+            <span class="stat-label">Meus restaurantes</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card bug-card" routerLink="/gerente/chamados">
+        <mat-card-content>
+          <div class="stat-icon"><mat-icon>support_agent</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.openBugs }}</span>
+            <span class="stat-label">Chamados abertos</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="quick-links">
+      <h2>Atalhos</h2>
+      <div class="links-grid">
+        <button mat-stroked-button routerLink="/gerente/restaurantes" class="link-btn">
+          <mat-icon>store</mat-icon> Meus restaurantes
+        </button>
+        <button mat-stroked-button routerLink="/gerente/restaurantes/criar" class="link-btn">
+          <mat-icon>add_business</mat-icon> Criar restaurante
+        </button>
+        <button mat-stroked-button routerLink="/gerente/chamados" class="link-btn">
+          <mat-icon>support_agent</mat-icon> Abrir chamado
+        </button>
+      </div>
+    </div>
+  }
+</div>

@@ -48,18 +48,16 @@ export class LoginComponent {
     this.loading = true;
 
     this.auth.login(this.form.value as { identifier: string; password: string }).subscribe({
-      next: () => {
-        this.router.navigate(['/restaurantes/criar']);
+      next: (res) => {
+        const dest = res.data.user.is_admin ? '/admin/dashboard' : '/gerente/dashboard';
+        this.router.navigate([dest]);
       },
       error: (err) => {
         this.loading = false;
-        const msg =
-          err?.error?.errors?.detail || 'Credenciais inválidas. Tente novamente.';
+        const msg = err?.error?.errors?.detail || 'Credenciais inválidas. Tente novamente.';
         this.snackBar.open(msg, 'Fechar', { duration: 4000 });
       },
-      complete: () => {
-        this.loading = false;
-      },
+      complete: () => { this.loading = false; },
     });
   }
 }

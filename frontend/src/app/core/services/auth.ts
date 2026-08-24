@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, AuthResponse, ApiResponse } from '../models/auth.models';
+import { LoginRequest, RegisterRequest, AuthResponse, ApiResponse, UserManager } from '../models/auth.models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -26,6 +26,10 @@ export class AuthService {
       );
   }
 
+  register(data: RegisterRequest): Observable<ApiResponse<UserManager>> {
+    return this.http.post<ApiResponse<UserManager>>(`${environment.apiUrl}/managers/`, data);
+  }
+
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_KEY);
@@ -41,8 +45,12 @@ export class AuthService {
     return !!this.getToken();
   }
 
-  getCurrentUser() {
+  getCurrentUser(): UserManager | null {
     const raw = localStorage.getItem(this.USER_KEY);
     return raw ? JSON.parse(raw) : null;
+  }
+
+  isAdmin(): boolean {
+    return this.getCurrentUser()?.is_admin === true;
   }
 }
