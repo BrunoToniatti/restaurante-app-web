@@ -2,10 +2,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,8 +18,8 @@ import { QueueResponse } from '../../../core/models/restaurant.models';
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule,
-    MatCardModule, MatTableModule, MatButtonModule, MatIconModule,
-    MatChipsModule, MatProgressSpinnerModule, MatSnackBarModule,
+    MatCardModule, MatButtonModule, MatIconModule,
+    MatProgressSpinnerModule, MatSnackBarModule,
     MatFormFieldModule, MatInputModule, MatSelectModule, MatExpansionModule,
   ],
   templateUrl: './queues.html',
@@ -73,9 +71,5 @@ export class QueuesComponent implements OnInit {
       error: () => this.snackBar.open('Erro ao atualizar.', 'Fechar', { duration: 3000 }),
       complete: () => { this.saving = false; },
     });
-  }
-
-  statusColor(status: string): string {
-    return { OPEN: 'primary', CLOSED: 'warn', PAUSED: 'accent' }[status] || '';
   }
 }
