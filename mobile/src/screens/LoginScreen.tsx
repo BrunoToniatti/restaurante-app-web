@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StatusBar,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
@@ -22,6 +23,7 @@ export default function LoginScreen({ navigation }: Props) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   async function handleLogin() {
     if (!identifier.trim() || !password.trim()) {
@@ -42,121 +44,174 @@ export default function LoginScreen({ navigation }: Props) {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <View style={styles.header}>
-          <Text style={styles.logo}>🍽️</Text>
-          <Text style={styles.title}>VYU Restaurantes</Text>
-          <Text style={styles.subtitle}>Encontre os melhores restaurantes perto de você</Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Entrar</Text>
-
-          <Text style={styles.label}>E-mail ou usuário</Text>
-          <TextInput
-            style={styles.input}
-            value={identifier}
-            onChangeText={setIdentifier}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            placeholder="seu@email.com"
-            placeholderTextColor="#aaa"
-          />
-
-          <Text style={styles.label}>Senha</Text>
-          <View style={styles.passwordRow}>
-            <TextInput
-              style={[styles.input, styles.passwordInput]}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              placeholder="••••••••"
-              placeholderTextColor="#aaa"
-            />
-            <TouchableOpacity
-              onPress={() => setShowPassword((v) => !v)}
-              style={styles.eyeBtn}
-            >
-              <Text style={styles.eyeText}>{showPassword ? '🙈' : '👁️'}</Text>
-            </TouchableOpacity>
+    <>
+      <StatusBar barStyle="light-content" backgroundColor="#1a237e" />
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+          {/* Hero */}
+          <View style={styles.hero}>
+            <View style={styles.logoWrap}>
+              <Text style={styles.logoEmoji}>🍽️</Text>
+            </View>
+            <Text style={styles.brand}>VYU Restaurantes</Text>
+            <Text style={styles.heroSub}>Encontre os melhores restaurantes perto de você</Text>
           </View>
 
-          <TouchableOpacity
-            style={[styles.btn, loading && styles.btnDisabled]}
-            onPress={handleLogin}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.btnText}>Entrar</Text>
-            )}
-          </TouchableOpacity>
+          {/* Card */}
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Bem-vindo de volta</Text>
+            <Text style={styles.cardSub}>Entre com sua conta para continuar</Text>
 
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Register')}
-            style={styles.linkBtn}
-          >
-            <Text style={styles.linkText}>Não tem conta? <Text style={styles.linkBold}>Cadastre-se</Text></Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>E-mail ou usuário</Text>
+              <TextInput
+                style={[styles.input, focusedField === 'id' && styles.inputFocused]}
+                value={identifier}
+                onChangeText={setIdentifier}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                placeholder="seu@email.com"
+                placeholderTextColor="#b0b8d4"
+                onFocus={() => setFocusedField('id')}
+                onBlur={() => setFocusedField(null)}
+              />
+            </View>
+
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>Senha</Text>
+              <View style={styles.passwordRow}>
+                <TextInput
+                  style={[styles.input, styles.passwordInput, focusedField === 'pw' && styles.inputFocused]}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  placeholder="••••••••"
+                  placeholderTextColor="#b0b8d4"
+                  onFocus={() => setFocusedField('pw')}
+                  onBlur={() => setFocusedField(null)}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword((v) => !v)}
+                  style={styles.eyeBtn}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Text style={styles.eyeText}>{showPassword ? '🙈' : '👁️'}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.btn, loading && styles.btnDisabled]}
+              onPress={handleLogin}
+              disabled={loading}
+              activeOpacity={0.85}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.btnText}>Entrar</Text>
+              )}
+            </TouchableOpacity>
+
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>ou</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Register')}
+              style={styles.registerBtn}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.registerBtnText}>Criar nova conta</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </>
   );
 }
 
+const PRIMARY = '#1a237e';
+const PRIMARY_MID = '#283593';
+const ACCENT = '#3f51b5';
+
 const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: '#1a237e' },
-  container: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 24,
+  flex: { flex: 1, backgroundColor: PRIMARY },
+  container: { flexGrow: 1, padding: 24 },
+
+  hero: { alignItems: 'center', paddingTop: 48, paddingBottom: 36 },
+  logoWrap: {
+    width: 80, height: 80, borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    alignItems: 'center', justifyContent: 'center',
+    marginBottom: 16,
   },
-  header: { alignItems: 'center', marginBottom: 32 },
-  logo: { fontSize: 56, marginBottom: 8 },
-  title: { fontSize: 26, fontWeight: '700', color: '#fff', marginBottom: 6 },
-  subtitle: { fontSize: 14, color: '#c5cae9', textAlign: 'center' },
+  logoEmoji: { fontSize: 40 },
+  brand: { fontSize: 26, fontWeight: '800', color: '#fff', letterSpacing: -0.5 },
+  heroSub: { fontSize: 13, color: '#c5cae9', textAlign: 'center', marginTop: 6, lineHeight: 20 },
+
   card: {
     backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: 20,
+    padding: 28,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 16,
+    elevation: 10,
+    marginBottom: 32,
   },
-  cardTitle: { fontSize: 22, fontWeight: '700', color: '#1a237e', marginBottom: 20 },
-  label: { fontSize: 13, fontWeight: '600', color: '#555', marginBottom: 6 },
+  cardTitle: { fontSize: 22, fontWeight: '700', color: PRIMARY, marginBottom: 4 },
+  cardSub: { fontSize: 13, color: '#6b7280', marginBottom: 24 },
+
+  fieldGroup: { marginBottom: 16 },
+  label: { fontSize: 12, fontWeight: '700', color: '#374151', marginBottom: 8, letterSpacing: 0.5, textTransform: 'uppercase' },
   input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    borderWidth: 1.5,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 13,
     fontSize: 15,
-    color: '#222',
-    marginBottom: 16,
-    backgroundColor: '#fafafa',
+    color: '#111827',
+    backgroundColor: '#f9fafb',
   },
+  inputFocused: { borderColor: ACCENT, backgroundColor: '#fff' },
   passwordRow: { position: 'relative' },
-  passwordInput: { paddingRight: 48 },
-  eyeBtn: { position: 'absolute', right: 12, top: 12 },
+  passwordInput: { paddingRight: 50 },
+  eyeBtn: { position: 'absolute', right: 14, top: 13 },
   eyeText: { fontSize: 18 },
+
   btn: {
-    backgroundColor: '#3f51b5',
-    borderRadius: 10,
+    backgroundColor: ACCENT,
+    borderRadius: 12,
+    paddingVertical: 15,
+    alignItems: 'center',
+    marginTop: 4,
+    shadowColor: ACCENT,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  btnDisabled: { opacity: 0.6, shadowOpacity: 0 },
+  btnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+
+  divider: { flexDirection: 'row', alignItems: 'center', marginVertical: 20 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: '#e5e7eb' },
+  dividerText: { marginHorizontal: 12, color: '#9ca3af', fontSize: 13 },
+
+  registerBtn: {
+    borderWidth: 1.5,
+    borderColor: ACCENT,
+    borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
-    marginTop: 8,
   },
-  btnDisabled: { opacity: 0.6 },
-  btnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
-  linkBtn: { marginTop: 16, alignItems: 'center' },
-  linkText: { color: '#666', fontSize: 14 },
-  linkBold: { color: '#3f51b5', fontWeight: '700' },
+  registerBtnText: { color: ACCENT, fontWeight: '700', fontSize: 15 },
 });
