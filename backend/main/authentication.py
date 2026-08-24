@@ -11,6 +11,12 @@ class CustomJWTAuthentication(JWTAuthentication):
     based strictly on verified token claims (user_id, user_type).
     """
 
+    def authenticate(self, request):
+        try:
+            return super().authenticate(request)
+        except Exception:
+            return None
+
     def get_user(self, validated_token):
         """
         Attempts to find and return a user using the given validated token.
