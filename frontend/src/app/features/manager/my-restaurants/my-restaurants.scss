@@ -1,0 +1,51 @@
+.page { max-width: 1100px; }
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a237e;
+  margin: 0;
+}
+
+.loading-center { display: flex; justify-content: center; padding: 64px; }
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 64px;
+  color: #999;
+
+  .empty-icon { font-size: 64px; width: 64px; height: 64px; color: #ccc; }
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.restaurant-card {
+  border-radius: 12px !important;
+
+  .card-avatar { color: #3f51b5; }
+
+  .info-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0;
+    font-size: 0.875rem;
+    color: #555;
+
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  }
+}

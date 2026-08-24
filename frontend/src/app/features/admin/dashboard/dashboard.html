@@ -1,0 +1,56 @@
+<div class="dashboard">
+  <h1 class="page-title">Dashboard do Administrador</h1>
+
+  @if (loading) {
+    <div class="loading-center">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else {
+    <div class="stats-grid">
+      <mat-card class="stat-card bug-card" routerLink="/admin/chamados">
+        <mat-card-content>
+          <div class="stat-icon"><mat-icon>bug_report</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.openBugs }}</span>
+            <span class="stat-label">Chamados em aberto</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card restaurant-card" routerLink="/admin/restaurantes">
+        <mat-card-content>
+          <div class="stat-icon"><mat-icon>store</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.totalRestaurants }}</span>
+            <span class="stat-label">Restaurantes cadastrados</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card queue-card" routerLink="/admin/filas">
+        <mat-card-content>
+          <div class="stat-icon"><mat-icon>queue</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.activeQueues }}</span>
+            <span class="stat-label">Filas abertas agora</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="quick-links">
+      <h2>Atalhos rápidos</h2>
+      <div class="links-grid">
+        <button mat-stroked-button routerLink="/admin/chamados" class="link-btn">
+          <mat-icon>bug_report</mat-icon> Ver chamados
+        </button>
+        <button mat-stroked-button routerLink="/admin/restaurantes" class="link-btn">
+          <mat-icon>store</mat-icon> Gerenciar restaurantes
+        </button>
+        <button mat-stroked-button routerLink="/admin/filas" class="link-btn">
+          <mat-icon>queue</mat-icon> Ver filas
+        </button>
+      </div>
+    </div>
+  }
+</div>

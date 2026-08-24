@@ -1,0 +1,80 @@
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title">Chamados</h1>
+    <div class="filters">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Buscar</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [(ngModel)]="search" (input)="applyFilter()" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="status-field">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="filterStatus" (selectionChange)="applyFilter()">
+          <mat-option value="">Todos</mat-option>
+          <mat-option value="OPEN">Aberto</mat-option>
+          <mat-option value="IN_PROGRESS">Em andamento</mat-option>
+          <mat-option value="RESOLVED">Resolvido</mat-option>
+          <mat-option value="CLOSED">Fechado</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading-center"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <mat-accordion multi>
+      @for (report of filtered; track report.id) {
+        <mat-expansion-panel class="report-panel">
+          <mat-expansion-panel-header>
+            <mat-panel-title class="panel-title">
+              <mat-chip [color]="statusColor(report.status)" highlighted>{{ report.status_display }}</mat-chip>
+              <span>{{ report.title }}</span>
+            </mat-panel-title>
+            <mat-panel-description>
+              {{ report.opened_by_name }} · {{ report.platform_display }} · {{ report.category_display }}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <div class="report-body">
+            <p class="description">{{ report.description }}</p>
+            @if (report.admin_response) {
+              <div class="admin-response">
+                <strong>Resposta anterior:</strong>
+                <p>{{ report.admin_response }}</p>
+              </div>
+            }
+
+            @if (respondingId === report.id) {
+              <form [formGroup]="respondForm" class="respond-form">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Novo status</mat-label>
+                  <mat-select formControlName="status">
+                    <mat-option value="IN_PROGRESS">Em andamento</mat-option>
+                    <mat-option value="RESOLVED">Resolvido</mat-option>
+                    <mat-option value="CLOSED">Fechado</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Resposta</mat-label>
+                  <textarea matInput formControlName="admin_response" rows="3"></textarea>
+                </mat-form-field>
+                <div class="form-actions">
+                  <button mat-button (click)="cancelRespond()">Cancelar</button>
+                  <button mat-flat-button color="primary" [disabled]="respondForm.invalid" (click)="submitRespond(report.id)">Salvar</button>
+                </div>
+              </form>
+            } @else {
+              <button mat-stroked-button color="primary" (click)="startRespond(report)">
+                <mat-icon>reply</mat-icon> Responder
+              </button>
+            }
+          </div>
+        </mat-expansion-panel>
+      }
+      @if (filtered.length === 0) {
+        <p class="empty">Nenhum chamado encontrado.</p>
+      }
+    </mat-accordion>
+  }
+</div>

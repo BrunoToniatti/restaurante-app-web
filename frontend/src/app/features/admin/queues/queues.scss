@@ -1,0 +1,12 @@
+.page { max-width: 1100px; }
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a237e;
+  margin: 0 0 16px;
+}
+
+.loading-center { display: flex; justify-content: center; padding: 64px; }
+.full-width { width: 100%; }
+.empty { text-align: center; color: #999; padding: 32px; }
