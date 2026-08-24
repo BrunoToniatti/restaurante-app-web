@@ -40,12 +40,23 @@ body {
 
 /* ─── Angular Material global overrides ──────────────────────────────── */
 
-/* Form fields: consistent bottom spacing */
+/* Form fields: padding and spacing */
 mat-form-field {
   width: 100%;
 
+  /* More breathing room inside the input */
+  .mat-mdc-text-field-wrapper {
+    border-radius: var(--radius-sm) !important;
+    padding-top: 4px !important;
+  }
+
+  .mat-mdc-form-field-infix {
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+    min-height: 52px !important;
+  }
+
   .mat-mdc-form-field-bottom-align { margin-bottom: 4px; }
-  .mat-mdc-text-field-wrapper { border-radius: var(--radius-sm) !important; }
 }
 
 /* Give every mat-form-field a breathing bottom margin unless inside a flex/grid gap container */

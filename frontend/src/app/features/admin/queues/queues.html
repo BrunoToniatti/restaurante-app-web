@@ -1,65 +1,81 @@
 <div class="page">
-  <h1 class="page-title">Filas</h1>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Filas</h1>
+      <p class="page-sub">Monitore e edite o status de todas as filas</p>
+    </div>
+  </div>
 
   @if (loading) {
     <div class="loading-center"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (queues.length === 0) {
+    <div class="empty-state">
+      <mat-icon>queue</mat-icon>
+      <p>Nenhuma fila encontrada.</p>
+    </div>
   } @else {
-    <mat-accordion multi>
+    <mat-accordion multi class="queues-accordion">
       @for (q of queues; track q.id) {
         <mat-expansion-panel class="queue-panel">
           <mat-expansion-panel-header>
             <mat-panel-title class="panel-title">
-              <mat-chip [color]="statusColor(q.status)" highlighted>{{ q.status_display }}</mat-chip>
-              <span>{{ q.restaurant_name }}</span>
+              <span class="status-dot" [class]="'dot-' + q.status.toLowerCase()"></span>
+              <span class="restaurant-name">{{ q.restaurant_name }}</span>
             </mat-panel-title>
-            <mat-panel-description>
-              {{ q.current_size }} pessoas · {{ q.estimated_wait_minutes }} min espera
+            <mat-panel-description class="panel-desc">
+              <span class="status-badge" [class]="'badge-' + q.status.toLowerCase()">{{ q.status_display }}</span>
+              <span class="meta">{{ q.current_size }} pessoas · {{ q.estimated_wait_minutes }} min</span>
             </mat-panel-description>
           </mat-expansion-panel-header>
 
           @if (editingId === q.restaurant) {
             <form [formGroup]="editForm" class="edit-form">
-              <mat-form-field appearance="outline" class="full-width">
+              <mat-form-field appearance="outline">
                 <mat-label>Status</mat-label>
                 <mat-select formControlName="status">
-                  <mat-option value="OPEN">Aberta</mat-option>
-                  <mat-option value="PAUSED">Pausada</mat-option>
-                  <mat-option value="CLOSED">Fechada</mat-option>
+                  <mat-option value="OPEN">🟢 Aberta</mat-option>
+                  <mat-option value="PAUSED">🟡 Pausada</mat-option>
+                  <mat-option value="CLOSED">🔴 Fechada</mat-option>
                 </mat-select>
               </mat-form-field>
-              <div class="row">
-                <mat-form-field appearance="outline" class="half">
+
+              <div class="field-row">
+                <mat-form-field appearance="outline">
                   <mat-label>Pessoas na fila</mat-label>
                   <input matInput type="number" formControlName="current_size" min="0" />
+                  <mat-icon matSuffix>people</mat-icon>
                 </mat-form-field>
-                <mat-form-field appearance="outline" class="half">
-                  <mat-label>Espera (min)</mat-label>
+                <mat-form-field appearance="outline">
+                  <mat-label>Espera estimada (min)</mat-label>
                   <input matInput type="number" formControlName="estimated_wait_minutes" min="0" />
+                  <mat-icon matSuffix>schedule</mat-icon>
                 </mat-form-field>
               </div>
-              <mat-form-field appearance="outline" class="full-width">
+
+              <mat-form-field appearance="outline">
                 <mat-label>Observações</mat-label>
-                <textarea matInput formControlName="notes" rows="2"></textarea>
+                <textarea matInput formControlName="notes" rows="2" placeholder="Ex: Fila suspensa por chuva..."></textarea>
               </mat-form-field>
+
               <div class="form-actions">
-                <button mat-button (click)="cancelEdit()">Cancelar</button>
-                <button mat-flat-button color="primary" [disabled]="saving || editForm.invalid" (click)="saveEdit(q.restaurant)">
-                  @if (saving) { <mat-spinner diameter="18"></mat-spinner> } @else { Salvar }
+                <button mat-button type="button" (click)="cancelEdit()">Cancelar</button>
+                <button mat-flat-button color="primary" type="button"
+                  [disabled]="saving || editForm.invalid" (click)="saveEdit(q.restaurant)">
+                  @if (saving) { <mat-spinner diameter="18"></mat-spinner> } @else { Salvar alterações }
                 </button>
               </div>
             </form>
           } @else {
-            <div class="queue-info">
-              @if (q.notes) { <p class="notes">{{ q.notes }}</p> }
+            <div class="queue-details">
+              @if (q.notes) {
+                <p class="notes"><mat-icon>info_outline</mat-icon> {{ q.notes }}</p>
+              }
               <button mat-stroked-button color="primary" (click)="startEdit(q)">
                 <mat-icon>edit</mat-icon> Editar fila
               </button>
             </div>
           }
         </mat-expansion-panel>
-      }
-      @if (queues.length === 0) {
-        <p class="empty">Nenhuma fila encontrada.</p>
       }
     </mat-accordion>
   }
