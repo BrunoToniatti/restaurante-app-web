@@ -111,6 +111,28 @@ class RestaurantService:
         return queryset
 
     @classmethod
+    @transaction.atomic
+    def transfer_restaurant(cls, restaurant: Restaurant, new_manager_id: int) -> Restaurant:
+        """
+        Admin-only: transfers restaurant ownership to another manager.
+        """
+        try:
+            new_manager = UserManager.objects.get(id=new_manager_id)
+        except UserManager.DoesNotExist:
+            from rest_framework.exceptions import NotFound
+            raise NotFound("Gerente de destino não encontrado.")
+        restaurant.manager = new_manager
+        restaurant.save()
+        return restaurant
+
+    @classmethod
+    def get_all_restaurants(cls):
+        """
+        Admin-only: returns all restaurants.
+        """
+        return Restaurant.objects.select_related('manager').all().order_by('-created_at')
+
+    @classmethod
     def get_public_restaurant(cls, restaurant_id: int) -> Restaurant:
         """
         Retrieves public information for a single restaurant.

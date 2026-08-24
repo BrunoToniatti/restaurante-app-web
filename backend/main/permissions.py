@@ -40,6 +40,19 @@ class IsAppUser(BasePermission):
         )
 
 
+class IsAdmin(BasePermission):
+    """
+    Allows access only to authenticated Managers with is_admin=True.
+    """
+    def has_permission(self, request, view):
+        return bool(
+            request.user and
+            request.user.is_authenticated and
+            isinstance(request.user, UserManager) and
+            getattr(request.user, 'is_admin', False)
+        )
+
+
 class IsRestaurantOwner(BasePermission):
     """
     Object-level permission to only allow the owning Manager to view, edit, or delete a restaurant.

@@ -17,6 +17,7 @@ class UserManager(TimeStampedModel):
     email = models.EmailField(unique=True, max_length=255, db_index=True, verbose_name="E-mail")
     username = models.CharField(unique=True, max_length=100, db_index=True, verbose_name="Nome de Usuário")
     is_active = models.BooleanField(default=True, verbose_name="Ativo")
+    is_admin = models.BooleanField(default=False, verbose_name="Administrador")
 
     class Meta:
         db_table = 'user_manager'
@@ -37,7 +38,7 @@ class UserManager(TimeStampedModel):
 
     @property
     def user_type(self):
-        return "MANAGER"
+        return "ADMIN" if self.is_admin else "MANAGER"
 
     @property
     def restaurant_count(self):
