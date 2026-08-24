@@ -128,7 +128,7 @@ class ManagerRestaurantDetailView(APIView):
 
 class AdminRestaurantListView(APIView):
     """
-    Admin: list all restaurants across all managers.
+    Admin: list all restaurants or create a new one (assigned to themselves or a given manager).
     """
     permission_classes = [IsAdmin]
 
@@ -138,6 +138,18 @@ class AdminRestaurantListView(APIView):
         return Response(
             {"status": "success", "status_code": 200, "count": restaurants.count(), "data": serializer.data},
             status=status.HTTP_200_OK
+        )
+
+    def post(self, request):
+        serializer = RestaurantCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        restaurant = RestaurantService.create_restaurant(
+            manager=request.user,
+            validated_data=serializer.validated_data
+        )
+        return Response(
+            {"status": "success", "status_code": 201, "data": RestaurantAdminResponseSerializer(restaurant).data},
+            status=status.HTTP_201_CREATED
         )
 
 

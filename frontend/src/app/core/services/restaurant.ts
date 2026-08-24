@@ -30,6 +30,10 @@ export class RestaurantService {
     return this.http.get<ApiResponse<RestaurantResponse[]>>(`${environment.apiUrl}/restaurants/admin/`);
   }
 
+  adminCreate(data: RestaurantCreateRequest): Observable<ApiResponse<RestaurantResponse>> {
+    return this.http.post<ApiResponse<RestaurantResponse>>(`${environment.apiUrl}/restaurants/admin/`, data);
+  }
+
   transfer(id: number, newManagerId: number): Observable<ApiResponse<RestaurantResponse>> {
     return this.http.post<ApiResponse<RestaurantResponse>>(
       `${environment.apiUrl}/restaurants/admin/${id}/transfer/`,

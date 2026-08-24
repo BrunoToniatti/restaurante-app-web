@@ -4,37 +4,63 @@
   @if (loading) {
     <div class="loading-center"><mat-spinner diameter="48"></mat-spinner></div>
   } @else {
-    <mat-card>
-      <table mat-table [dataSource]="queues" class="full-width">
-        <ng-container matColumnDef="restaurant_name">
-          <th mat-header-cell *matHeaderCellDef>Restaurante</th>
-          <td mat-cell *matCellDef="let q">{{ q.restaurant_name }}</td>
-        </ng-container>
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Status</th>
-          <td mat-cell *matCellDef="let q">
-            <mat-chip [color]="statusColor(q.status)" highlighted>{{ q.status_display }}</mat-chip>
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="current_size">
-          <th mat-header-cell *matHeaderCellDef>Pessoas na fila</th>
-          <td mat-cell *matCellDef="let q">{{ q.current_size }}</td>
-        </ng-container>
-        <ng-container matColumnDef="estimated_wait_minutes">
-          <th mat-header-cell *matHeaderCellDef>Espera estimada</th>
-          <td mat-cell *matCellDef="let q">{{ q.estimated_wait_minutes }} min</td>
-        </ng-container>
-        <ng-container matColumnDef="notes">
-          <th mat-header-cell *matHeaderCellDef>Observações</th>
-          <td mat-cell *matCellDef="let q">{{ q.notes || '—' }}</td>
-        </ng-container>
+    <mat-accordion multi>
+      @for (q of queues; track q.id) {
+        <mat-expansion-panel class="queue-panel">
+          <mat-expansion-panel-header>
+            <mat-panel-title class="panel-title">
+              <mat-chip [color]="statusColor(q.status)" highlighted>{{ q.status_display }}</mat-chip>
+              <span>{{ q.restaurant_name }}</span>
+            </mat-panel-title>
+            <mat-panel-description>
+              {{ q.current_size }} pessoas · {{ q.estimated_wait_minutes }} min espera
+            </mat-panel-description>
+          </mat-expansion-panel-header>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
+          @if (editingId === q.restaurant) {
+            <form [formGroup]="editForm" class="edit-form">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                  <mat-option value="OPEN">Aberta</mat-option>
+                  <mat-option value="PAUSED">Pausada</mat-option>
+                  <mat-option value="CLOSED">Fechada</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <div class="row">
+                <mat-form-field appearance="outline" class="half">
+                  <mat-label>Pessoas na fila</mat-label>
+                  <input matInput type="number" formControlName="current_size" min="0" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="half">
+                  <mat-label>Espera (min)</mat-label>
+                  <input matInput type="number" formControlName="estimated_wait_minutes" min="0" />
+                </mat-form-field>
+              </div>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Observações</mat-label>
+                <textarea matInput formControlName="notes" rows="2"></textarea>
+              </mat-form-field>
+              <div class="form-actions">
+                <button mat-button (click)="cancelEdit()">Cancelar</button>
+                <button mat-flat-button color="primary" [disabled]="saving || editForm.invalid" (click)="saveEdit(q.restaurant)">
+                  @if (saving) { <mat-spinner diameter="18"></mat-spinner> } @else { Salvar }
+                </button>
+              </div>
+            </form>
+          } @else {
+            <div class="queue-info">
+              @if (q.notes) { <p class="notes">{{ q.notes }}</p> }
+              <button mat-stroked-button color="primary" (click)="startEdit(q)">
+                <mat-icon>edit</mat-icon> Editar fila
+              </button>
+            </div>
+          }
+        </mat-expansion-panel>
+      }
       @if (queues.length === 0) {
         <p class="empty">Nenhuma fila encontrada.</p>
       }
-    </mat-card>
+    </mat-accordion>
   }
 </div>

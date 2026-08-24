@@ -1,4 +1,4 @@
-.page { max-width: 1100px; }
+.page { max-width: 900px; }
 
 .page-title {
   font-size: 1.5rem;
@@ -8,5 +8,20 @@
 }
 
 .loading-center { display: flex; justify-content: center; padding: 64px; }
+
+.queue-panel { margin-bottom: 8px; border-radius: 8px !important; }
+
+.panel-title { display: flex; align-items: center; gap: 12px; }
+
+.edit-form { padding-top: 8px; }
 .full-width { width: 100%; }
+.row { display: flex; gap: 12px; }
+.half { flex: 1; }
+
+.form-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+.queue-info { display: flex; flex-direction: column; gap: 8px; }
+
+.notes { color: #555; margin: 0 0 8px; }
+
 .empty { text-align: center; color: #999; padding: 32px; }

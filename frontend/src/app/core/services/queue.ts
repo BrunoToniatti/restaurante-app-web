@@ -20,4 +20,8 @@ export class QueueService {
   listAll(): Observable<ApiResponse<QueueResponse[]>> {
     return this.http.get<ApiResponse<QueueResponse[]>>(`${environment.apiUrl}/queues/admin/`);
   }
+
+  adminUpdate(restaurantId: number, data: Partial<QueueResponse>): Observable<ApiResponse<QueueResponse>> {
+    return this.http.put<ApiResponse<QueueResponse>>(`${environment.apiUrl}/queues/admin/${restaurantId}/`, data);
+  }
 }
