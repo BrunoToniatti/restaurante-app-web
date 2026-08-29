@@ -35,8 +35,10 @@ export default function LoginScreen({ navigation }: Props) {
       await loginUser(identifier.trim(), password);
       navigation.replace('Restaurants');
     } catch (err: any) {
-      const msg =
-        err?.response?.data?.errors?.detail || 'Credenciais inválidas. Tente novamente.';
+      const isNetwork = !err?.response;
+      const msg = isNetwork
+        ? 'Não foi possível conectar ao servidor. Verifique sua conexão e se o backend está rodando.'
+        : err?.response?.data?.errors?.detail || 'Credenciais inválidas. Tente novamente.';
       Alert.alert('Erro', msg);
     } finally {
       setLoading(false);
