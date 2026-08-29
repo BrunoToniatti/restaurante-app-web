@@ -12,11 +12,11 @@ import {
   ScrollView,
   StatusBar,
 } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../App';
 import { loginUser } from '../services/auth';
 
-type Props = { navigation: NativeStackNavigationProp<RootStackParamList, 'Login'> };
+type Props = { navigation: StackNavigationProp<RootStackParamList, 'Login'> };
 
 export default function LoginScreen({ navigation }: Props) {
   const [identifier, setIdentifier] = useState('');

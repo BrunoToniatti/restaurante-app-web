@@ -13,13 +13,13 @@ import {
   Platform,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../App';
 import { getPublicRestaurants } from '../services/restaurant';
 import { getStoredUser, logout } from '../services/auth';
 import { Restaurant, UserApp } from '../types';
 
-type Props = { navigation: NativeStackNavigationProp<RootStackParamList, 'Restaurants'> };
+type Props = { navigation: StackNavigationProp<RootStackParamList, 'Restaurants'> };
 
 export default function RestaurantsScreen({ navigation }: Props) {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);

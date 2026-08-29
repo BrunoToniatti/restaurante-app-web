@@ -12,11 +12,11 @@ import {
   ScrollView,
   StatusBar,
 } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../App';
 import { registerUser } from '../services/auth';
 
-type Props = { navigation: NativeStackNavigationProp<RootStackParamList, 'Register'> };
+type Props = { navigation: StackNavigationProp<RootStackParamList, 'Register'> };
 
 export default function RegisterScreen({ navigation }: Props) {
   const [form, setForm] = useState({
