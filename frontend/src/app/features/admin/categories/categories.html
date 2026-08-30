@@ -1,0 +1,90 @@
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title">Categorias</h1>
+  </div>
+
+  <mat-card class="create-card">
+    <mat-card-header>
+      <mat-card-title>Nova Categoria</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="catForm" (ngSubmit)="createCategory()" class="cat-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Nome</mat-label>
+          <input matInput formControlName="name" placeholder="Ex: Tipo de Comida">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Descrição (opcional)</mat-label>
+          <input matInput formControlName="description" placeholder="Breve descrição">
+        </mat-form-field>
+        <button mat-flat-button color="primary" type="submit" [disabled]="catForm.invalid">
+          <mat-icon>add</mat-icon> Criar
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  @if (loading) {
+    <div class="loading-center"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <mat-accordion class="categories-list">
+      @for (cat of categories; track cat.id) {
+        <mat-expansion-panel [expanded]="true" class="cat-panel">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="cat-icon">label</mat-icon>
+              {{ cat.name }}
+              <span class="item-count">{{ cat.items.length }} itens</span>
+            </mat-panel-title>
+            @if (cat.description) {
+              <mat-panel-description>{{ cat.description }}</mat-panel-description>
+            }
+          </mat-expansion-panel-header>
+
+          <div class="items-section">
+            <mat-chip-set>
+              @for (item of cat.items; track item.id) {
+                <mat-chip (removed)="deleteItem(cat.id, item.id)">
+                  {{ item.name }}
+                  <button matChipRemove><mat-icon>cancel</mat-icon></button>
+                </mat-chip>
+              }
+            </mat-chip-set>
+
+            @if (addingItemFor === cat.id) {
+              <div class="add-item-row">
+                <mat-form-field appearance="outline" class="item-input">
+                  <mat-label>Nome do item</mat-label>
+                  <input matInput [(ngModel)]="itemForms[cat.id]" (keydown.enter)="addItem(cat.id)" placeholder="Ex: Italiana">
+                </mat-form-field>
+                <button mat-icon-button color="primary" (click)="addItem(cat.id)" matTooltip="Confirmar">
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button mat-icon-button (click)="addingItemFor = null" matTooltip="Cancelar">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            } @else {
+              <button mat-button color="primary" (click)="startAddItem(cat.id)">
+                <mat-icon>add</mat-icon> Adicionar item
+              </button>
+            }
+          </div>
+
+          <mat-action-row>
+            <button mat-button color="warn" (click)="deleteCategory(cat.id)">
+              <mat-icon>delete</mat-icon> Excluir categoria
+            </button>
+          </mat-action-row>
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+
+    @if (categories.length === 0) {
+      <div class="empty-state">
+        <mat-icon>category</mat-icon>
+        <p>Nenhuma categoria cadastrada ainda.</p>
+      </div>
+    }
+  }
+</div>
