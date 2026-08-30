@@ -49,6 +49,7 @@ export class SidenavLayoutComponent implements OnInit {
     { label: 'Dashboard', icon: 'dashboard', route: '/admin/dashboard' },
     { label: 'Restaurantes', icon: 'store', route: '/admin/restaurantes' },
     { label: 'Filas', icon: 'queue', route: '/admin/filas' },
+    { label: 'Categorias', icon: 'category', route: '/admin/categorias' },
     { label: 'Chamados', icon: 'bug_report', route: '/admin/chamados' },
   ];
 
