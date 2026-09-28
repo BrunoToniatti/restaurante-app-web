@@ -38,7 +38,13 @@ export const routes: Routes = [
       { path: 'fila/:id', loadComponent: () => import('./features/manager/my-queue/my-queue').then(m => m.MyQueueComponent) },
       { path: 'chamados', loadComponent: () => import('./features/manager/open-report/open-report').then(m => m.OpenReportComponent) },
       { path: 'restaurantes/:id/categorias', loadComponent: () => import('./features/manager/restaurant-categories/restaurant-categories').then(m => m.RestaurantCategoriesComponent) },
+      { path: 'cardapio', loadComponent: () => import('./features/manager/menu/menu').then(m => m.MenuComponent) },
+      { path: 'comandas', loadComponent: () => import('./features/manager/comandas/comandas').then(m => m.ComandasComponent) },
     ],
+  },
+  {
+    path: 'garcom/:token',
+    loadComponent: () => import('./features/waiter/waiter').then(m => m.WaiterComponent),
   },
   { path: '**', redirectTo: 'login' },
 ];

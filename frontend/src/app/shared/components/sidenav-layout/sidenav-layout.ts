@@ -56,6 +56,8 @@ export class SidenavLayoutComponent implements OnInit {
   managerNav: NavItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/gerente/dashboard' },
     { label: 'Meus Restaurantes', icon: 'store', route: '/gerente/restaurantes' },
+    { label: 'Cardápio', icon: 'menu_book', route: '/gerente/cardapio' },
+    { label: 'Comandas', icon: 'receipt_long', route: '/gerente/comandas' },
     { label: 'Chamados', icon: 'support_agent', route: '/gerente/chamados' },
   ];
 

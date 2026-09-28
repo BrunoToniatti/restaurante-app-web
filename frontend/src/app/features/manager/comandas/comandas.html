@@ -1,0 +1,280 @@
+<div class="comandas-page">
+
+  @if (multipleRestaurants) {
+    <div class="restaurant-picker">
+      @for (r of restaurants; track r.id) {
+        <button mat-stroked-button [class.active]="selectedRestaurantId === r.id" (click)="selectRestaurant(r.id)">
+          {{ r.name }}
+        </button>
+      }
+    </div>
+  }
+
+  <div class="page-header">
+    <div>
+      <h2>Comandas</h2>
+      <p class="subtitle">Gerencie as mesas e pedidos do seu restaurante</p>
+    </div>
+    @if (selectedRestaurantId) {
+      <button mat-raised-button color="primary" (click)="openNewComanda()">
+        <mat-icon>add</mat-icon> Nova Comanda
+      </button>
+    }
+  </div>
+
+  @if (!selectedRestaurantId) {
+    <div class="empty-state">
+      <mat-icon>store</mat-icon><p>Selecione um restaurante.</p>
+    </div>
+  }
+
+  @if (loading) {
+    <div class="center-spinner"><mat-spinner diameter="40"></mat-spinner></div>
+  }
+
+  @if (selectedRestaurantId && !loading) {
+
+    <!-- Tabs -->
+    <div class="tab-bar">
+      <button [class.active]="activeTab==='open'"   (click)="activeTab='open'">
+        <mat-icon>table_restaurant</mat-icon>
+        Abertas
+        @if (openComandas.length > 0) { <span class="badge">{{ openComandas.length }}</span> }
+      </button>
+      <button [class.active]="activeTab==='closed'" (click)="activeTab='closed'">
+        <mat-icon>check_circle</mat-icon> Fechadas
+      </button>
+      <button [class.active]="activeTab==='tables'" (click)="activeTab='tables'">
+        <mat-icon>grid_on</mat-icon> Mesas
+      </button>
+      <button [class.active]="activeTab==='tokens'" (click)="activeTab='tokens'">
+        <mat-icon>link</mat-icon> Links Garçom
+      </button>
+    </div>
+
+    <!-- ── OPEN / CLOSED ── -->
+    @if (activeTab === 'open' || activeTab === 'closed') {
+      @let list = activeTab === 'open' ? openComandas : closedComandas;
+
+      <div class="split-view">
+
+        <!-- Left: comanda list -->
+        <div class="comanda-list">
+          @if (list.length === 0) {
+            <div class="empty-state small">
+              <mat-icon>{{ activeTab === 'open' ? 'table_restaurant' : 'history' }}</mat-icon>
+              <p>{{ activeTab === 'open' ? 'Nenhuma comanda aberta.' : 'Nenhuma comanda fechada.' }}</p>
+            </div>
+          }
+          @for (c of list; track c.id) {
+            <div class="comanda-card" [class.selected]="selectedComanda?.id === c.id" (click)="selectComanda(c)">
+              <div class="comanda-card-top">
+                <span class="comanda-label">{{ c.table_label || ('Comanda #' + c.id) }}</span>
+                <span class="comanda-total">{{ formatCurrency(c.total) }}</span>
+              </div>
+              <div class="comanda-card-meta">
+                <mat-icon>person</mat-icon> {{ c.opened_by }}
+                &nbsp;·&nbsp;
+                <mat-icon>schedule</mat-icon> {{ formatDate(c.created_at) }}
+              </div>
+              <div class="comanda-items-preview">
+                {{ c.items.length }} iten{{ c.items.length !== 1 ? 's' : '' }}
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Right: comanda detail -->
+        @if (selectedComanda) {
+          <div class="comanda-detail">
+            <div class="detail-header">
+              <div>
+                <h3>{{ selectedComanda.table_label || ('Comanda #' + selectedComanda.id) }}</h3>
+                <span class="detail-meta">Aberta por {{ selectedComanda.opened_by }} · {{ formatDate(selectedComanda.created_at) }}</span>
+              </div>
+              @if (selectedComanda.status === 'OPEN') {
+                <button mat-raised-button color="warn" (click)="closeComanda(selectedComanda)">
+                  <mat-icon>close</mat-icon> Fechar comanda
+                </button>
+              }
+            </div>
+
+            <!-- Items -->
+            <div class="items-list">
+              @if (selectedComanda.items.length === 0) {
+                <div class="empty-state small"><mat-icon>receipt</mat-icon><p>Nenhum item adicionado.</p></div>
+              }
+              @for (item of selectedComanda.items; track item.id) {
+                <div class="item-row">
+                  <div class="item-row-info">
+                    <span class="item-qty">{{ item.quantity }}×</span>
+                    <div>
+                      <span class="item-row-name">{{ item.item_name }}</span>
+                      @if (item.notes) { <span class="item-row-note">{{ item.notes }}</span> }
+                    </div>
+                  </div>
+                  <div class="item-row-right">
+                    <span class="item-row-subtotal">{{ formatCurrency(item.subtotal) }}</span>
+                    @if (selectedComanda.status === 'OPEN') {
+                      <button mat-icon-button color="warn" (click)="removeItem(selectedComanda, item)" matTooltip="Remover">
+                        <mat-icon>remove_circle_outline</mat-icon>
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Total -->
+            <div class="detail-total">
+              <span>Total</span>
+              <span class="total-value">{{ formatCurrency(selectedComanda.total) }}</span>
+            </div>
+
+            <!-- Add item (open only) -->
+            @if (selectedComanda.status === 'OPEN') {
+              <div class="add-item-section">
+                <div class="add-item-header" (click)="showAddItemPanel = !showAddItemPanel">
+                  <mat-icon>add_circle</mat-icon> Adicionar item
+                  <mat-icon>{{ showAddItemPanel ? 'expand_less' : 'expand_more' }}</mat-icon>
+                </div>
+                @if (showAddItemPanel) {
+                  <div class="add-item-body">
+                    <input class="search-input" placeholder="Buscar no cardápio..." [(ngModel)]="addItemSearch" />
+                    <div class="menu-pick-list">
+                      @for (m of filteredMenuForAdd; track m.id) {
+                        <div class="menu-pick-row" [class.selected-item]="selectedMenuItem?.id === m.id" (click)="selectedMenuItem = m">
+                          <span class="mpick-name">{{ m.name }}</span>
+                          <span class="mpick-price">{{ formatCurrency(m.price) }}</span>
+                        </div>
+                      }
+                    </div>
+                    @if (selectedMenuItem) {
+                      <div class="add-item-controls">
+                        <div class="qty-row">
+                          <button mat-icon-button (click)="addItemQty = addItemQty > 1 ? addItemQty - 1 : 1"><mat-icon>remove</mat-icon></button>
+                          <span class="qty-val">{{ addItemQty }}</span>
+                          <button mat-icon-button (click)="addItemQty = addItemQty + 1"><mat-icon>add</mat-icon></button>
+                        </div>
+                        <input class="search-input" placeholder="Observação (opcional)" [(ngModel)]="addItemNotes" />
+                        <button mat-raised-button color="primary" (click)="addItem(selectedComanda)">Confirmar</button>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state small detail-placeholder">
+            <mat-icon>touch_app</mat-icon>
+            <p>Selecione uma comanda para ver os detalhes.</p>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ── TABLES ── -->
+    @if (activeTab === 'tables') {
+      <div class="tables-section">
+        <div class="section-action-row">
+          <span>{{ tables.length }} mesa{{ tables.length !== 1 ? 's' : '' }} cadastrada{{ tables.length !== 1 ? 's' : '' }}</span>
+          <button mat-stroked-button (click)="showTableForm = !showTableForm">
+            <mat-icon>add</mat-icon> Adicionar mesa
+          </button>
+        </div>
+        @if (showTableForm) {
+          <div class="inline-form">
+            <input class="search-input" placeholder="Identificador (ex: 1, VIP, Terraço A)" [(ngModel)]="newTableIdentifier" />
+            <input class="search-input" placeholder="Capacidade (opcional)" type="number" [(ngModel)]="newTableCapacity" />
+            <button mat-raised-button color="primary" (click)="createTable()" [disabled]="!newTableIdentifier.trim()">Criar</button>
+          </div>
+        }
+        <div class="tables-grid">
+          @for (t of tables; track t.id) {
+            <div class="table-chip" [class.occupied]="t.open_comandas > 0">
+              <span class="table-id">{{ t.identifier }}</span>
+              @if (t.capacity) { <span class="table-cap">{{ t.capacity }} lugares</span> }
+              @if (t.open_comandas > 0) { <span class="table-busy">{{ t.open_comandas }} comanda{{ t.open_comandas > 1 ? 's' : '' }}</span> }
+              <button mat-icon-button color="warn" (click)="deleteTable(t)" matTooltip="Remover"><mat-icon>delete</mat-icon></button>
+            </div>
+          }
+          @if (tables.length === 0) {
+            <div class="empty-state small"><mat-icon>grid_off</mat-icon><p>Nenhuma mesa cadastrada.</p></div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ── TOKENS ── -->
+    @if (activeTab === 'tokens') {
+      <div class="tokens-section">
+        <div class="section-action-row">
+          <span>Links de acesso para garçons no celular/tablet</span>
+          <button mat-raised-button color="primary" (click)="showTokenForm = !showTokenForm">
+            <mat-icon>add_link</mat-icon> Gerar link
+          </button>
+        </div>
+        @if (showTokenForm) {
+          <div class="inline-form">
+            <input class="search-input" placeholder="Nome do funcionário" [(ngModel)]="newStaffName" />
+            <button mat-raised-button color="primary" (click)="createToken()" [disabled]="!newStaffName.trim()">Gerar</button>
+          </div>
+        }
+        @for (tok of staffTokens; track tok.id) {
+          <div class="token-row" [class.inactive]="!tok.active">
+            <div class="token-info">
+              <span class="token-name"><mat-icon>person</mat-icon> {{ tok.staff_name }}</span>
+              <span class="token-link">{{ waiterLink(tok) }}</span>
+            </div>
+            <div class="token-actions">
+              <button mat-icon-button color="primary" (click)="copyLink(tok)" matTooltip="Copiar link"><mat-icon>content_copy</mat-icon></button>
+              <button mat-icon-button [color]="tok.active ? 'warn' : 'primary'" (click)="toggleToken(tok)" [matTooltip]="tok.active ? 'Desativar' : 'Ativar'">
+                <mat-icon>{{ tok.active ? 'block' : 'check_circle' }}</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteToken(tok)" matTooltip="Revogar"><mat-icon>delete</mat-icon></button>
+            </div>
+          </div>
+        }
+        @if (staffTokens.length === 0) {
+          <div class="empty-state small"><mat-icon>link_off</mat-icon><p>Nenhum link gerado ainda.</p></div>
+        }
+      </div>
+    }
+  }
+
+</div>
+
+<!-- New comanda panel -->
+@if (showNewComandaForm) {
+  <div class="form-overlay" (click)="showNewComandaForm=false"></div>
+  <div class="form-panel">
+    <div class="form-panel-header">
+      <h3>Nova comanda</h3>
+      <button mat-icon-button (click)="showNewComandaForm=false"><mat-icon>close</mat-icon></button>
+    </div>
+    <form [formGroup]="newComandaForm" (ngSubmit)="createComanda()" class="form-body">
+      <mat-form-field appearance="outline">
+        <mat-label>Mesa (opcional)</mat-label>
+        <mat-select formControlName="table_id">
+          <mat-option [value]="null">Sem mesa associada</mat-option>
+          @for (t of tables; track t.id) {
+            <mat-option [value]="t.id">Mesa {{ t.identifier }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Rótulo livre (ex: "Família Silva")</mat-label>
+        <input matInput formControlName="table_label" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Observações</mat-label>
+        <textarea matInput formControlName="notes" rows="2"></textarea>
+      </mat-form-field>
+      <div class="form-actions">
+        <button mat-stroked-button type="button" (click)="showNewComandaForm=false">Cancelar</button>
+        <button mat-raised-button color="primary" type="submit">Abrir comanda</button>
+      </div>
+    </form>
+  </div>
+}
