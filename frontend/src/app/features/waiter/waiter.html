@@ -1,0 +1,188 @@
+<div class="waiter-app">
+
+  @if (loading) {
+    <div class="center-spinner">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Carregando...</p>
+    </div>
+  }
+
+  @if (error) {
+    <div class="error-state">
+      <mat-icon>link_off</mat-icon>
+      <h2>Link inválido</h2>
+      <p>{{ error }}</p>
+    </div>
+  }
+
+  @if (info && !loading) {
+
+    <!-- Header -->
+    <div class="waiter-header">
+      <div class="restaurant-info">
+        <span class="restaurant-name">{{ info.restaurant.name }}</span>
+        <span class="staff-name">Olá, {{ info.staff_name }}!</span>
+      </div>
+      @if (view !== 'list') {
+        <button mat-icon-button (click)="view='list'; selectedComanda=null">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+      }
+    </div>
+
+    <!-- ── LIST VIEW ── -->
+    @if (view === 'list') {
+      <div class="list-view">
+
+        <div class="list-header">
+          <h2>Comandas abertas</h2>
+          <button mat-raised-button color="primary" (click)="view='new'">
+            <mat-icon>add</mat-icon> Nova comanda
+          </button>
+        </div>
+
+        @if (openComandas.length === 0) {
+          <div class="empty-state">
+            <mat-icon>table_restaurant</mat-icon>
+            <p>Nenhuma comanda aberta.</p>
+            <button mat-stroked-button color="primary" (click)="view='new'">Abrir primeira comanda</button>
+          </div>
+        }
+
+        <div class="comanda-cards">
+          @for (c of openComandas; track c.id) {
+            <div class="comanda-card" (click)="openComanda(c)">
+              <div class="card-top">
+                <span class="card-label">{{ c.table_label || ('Comanda #' + c.id) }}</span>
+                <span class="card-total">{{ currency(c.total) }}</span>
+              </div>
+              <div class="card-meta">
+                {{ c.items.length }} item{{ c.items.length !== 1 ? 's' : '' }} · Aberta por {{ c.opened_by }}
+              </div>
+            </div>
+          }
+        </div>
+
+      </div>
+    }
+
+    <!-- ── NEW COMANDA ── -->
+    @if (view === 'new') {
+      <div class="form-view">
+        <h2>Nova comanda</h2>
+
+        <label class="field-label">Mesa</label>
+        <select class="field-select" [(ngModel)]="newTableId">
+          <option [ngValue]="null">Sem mesa</option>
+          @for (t of info.tables; track t.id) {
+            <option [ngValue]="t.id">{{ t.identifier }}{{ t.capacity ? ' (' + t.capacity + ' lugares)' : '' }}</option>
+          }
+        </select>
+
+        <label class="field-label">Rótulo livre (ex: "Família Silva")</label>
+        <input class="field-input" placeholder="Opcional" [(ngModel)]="newTableLabel" />
+
+        <label class="field-label">Observações</label>
+        <textarea class="field-input" rows="2" placeholder="Opcional" [(ngModel)]="newNotes"></textarea>
+
+        <div class="form-actions">
+          <button mat-stroked-button (click)="view='list'">Cancelar</button>
+          <button mat-raised-button color="primary" (click)="createComanda()">Abrir comanda</button>
+        </div>
+      </div>
+    }
+
+    <!-- ── COMANDA DETAIL ── -->
+    @if (view === 'comanda' && selectedComanda) {
+      <div class="detail-view">
+
+        <div class="detail-top">
+          <h2>{{ selectedComanda.table_label || ('Comanda #' + selectedComanda.id) }}</h2>
+          @if (selectedComanda.status === 'OPEN') {
+            <button mat-stroked-button color="warn" (click)="closeComanda(selectedComanda)">
+              <mat-icon>close</mat-icon> Fechar
+            </button>
+          }
+        </div>
+
+        <!-- Items -->
+        <div class="items-section">
+          @if (selectedComanda.items.length === 0) {
+            <div class="items-empty">Nenhum item ainda.</div>
+          }
+          @for (item of selectedComanda.items; track item.id) {
+            <div class="item-row">
+              <span class="item-qty">{{ item.quantity }}×</span>
+              <div class="item-info">
+                <span class="item-name">{{ item.item_name }}</span>
+                @if (item.notes) { <span class="item-note">{{ item.notes }}</span> }
+              </div>
+              <span class="item-price">{{ currency(item.subtotal) }}</span>
+              @if (selectedComanda.status === 'OPEN') {
+                <button mat-icon-button color="warn" (click)="removeItem(selectedComanda, item)">
+                  <mat-icon>remove_circle_outline</mat-icon>
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Total -->
+        <div class="total-row">
+          <span>Total</span>
+          <span class="total-val">{{ currency(selectedComanda.total) }}</span>
+        </div>
+
+        <!-- Add item accordion -->
+        @if (selectedComanda.status === 'OPEN') {
+          <div class="add-section">
+            <button class="add-toggle" (click)="showAddItem = !showAddItem">
+              <mat-icon>{{ showAddItem ? 'expand_less' : 'add_circle' }}</mat-icon>
+              Adicionar item
+            </button>
+
+            @if (showAddItem) {
+              <div class="add-body">
+                <input class="field-input" placeholder="Buscar no cardápio..." [(ngModel)]="itemSearch" />
+
+                <div class="menu-list">
+                  @for (m of filteredMenu; track m.id) {
+                    <div class="menu-row" [class.selected]="selectedMenuItem?.id === m.id" (click)="selectedMenuItem = m">
+                      <div class="menu-info">
+                        <span class="menu-name">{{ m.name }}</span>
+                        @if (m.description) { <span class="menu-desc">{{ m.description }}</span> }
+                      </div>
+                      <span class="menu-price">{{ currency(m.price) }}</span>
+                    </div>
+                  }
+                  @if (filteredMenu.length === 0) {
+                    <p class="no-results">Nenhum item encontrado.</p>
+                  }
+                </div>
+
+                @if (selectedMenuItem) {
+                  <div class="qty-controls">
+                    <button mat-icon-button (click)="addQty = addQty > 1 ? addQty - 1 : 1">
+                      <mat-icon>remove</mat-icon>
+                    </button>
+                    <span class="qty-val">{{ addQty }}</span>
+                    <button mat-icon-button (click)="addQty = addQty + 1">
+                      <mat-icon>add</mat-icon>
+                    </button>
+                  </div>
+                  <input class="field-input" placeholder="Observação (opcional)" [(ngModel)]="addNotes" />
+                  <button mat-raised-button color="primary" style="width:100%" (click)="addItem(selectedComanda)">
+                    Confirmar — {{ currency(selectedMenuItem.price * addQty) }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+
+      </div>
+    }
+
+  }
+
+</div>

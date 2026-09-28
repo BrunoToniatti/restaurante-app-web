@@ -1,4 +1,5 @@
 from django.urls import path, include
+from main.urls.comanda_urls import waiter_patterns
 
 urlpatterns = [
     # AUTH
@@ -18,4 +19,7 @@ urlpatterns = [
 
     # BUG REPORTS
     path('reports/', include('main.urls.bug_report_urls')),
+
+    # WAITER (token-based, no auth)
+    path('waiter/', include(waiter_patterns)),
 ]

@@ -1,0 +1,170 @@
+<div class="menu-page">
+
+  <!-- Restaurant picker -->
+  @if (multipleRestaurants) {
+    <div class="restaurant-picker">
+      @for (r of restaurants; track r.id) {
+        <button mat-stroked-button
+          [class.active]="selectedRestaurantId === r.id"
+          (click)="selectRestaurant(r.id)">
+          {{ r.name }}
+        </button>
+      }
+    </div>
+  }
+
+  <div class="page-header">
+    <div>
+      <h2>Cardápio</h2>
+      <p class="subtitle">Gerencie os itens do seu menu</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="openForm()">
+      <mat-icon>add</mat-icon> Novo Item
+    </button>
+  </div>
+
+  <!-- Category filter tabs -->
+  <div class="category-tabs">
+    <button [class.active]="filterCategory === ''" (click)="filterCategory = ''">Todos</button>
+    @for (cat of categories; track cat.value) {
+      <button [class.active]="filterCategory === cat.value" (click)="filterCategory = cat.value">
+        <mat-icon>{{ cat.icon }}</mat-icon> {{ cat.label }}
+      </button>
+    }
+  </div>
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="center-spinner">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  }
+
+  <!-- Empty -->
+  @if (!loading && filteredItems.length === 0 && selectedRestaurantId) {
+    <div class="empty-state">
+      <mat-icon>menu_book</mat-icon>
+      <p>Nenhum item no cardápio ainda.</p>
+      <button mat-raised-button color="primary" (click)="openForm()">Adicionar primeiro item</button>
+    </div>
+  }
+
+  @if (!loading && !selectedRestaurantId) {
+    <div class="empty-state">
+      <mat-icon>store</mat-icon>
+      <p>Selecione um restaurante para gerenciar o cardápio.</p>
+    </div>
+  }
+
+  <!-- Menu items grid -->
+  <div class="menu-grid">
+    @for (item of filteredItems; track item.id) {
+      <mat-card class="menu-card" [class.unavailable]="!item.available">
+        @if (item.image_url) {
+          <img mat-card-image [src]="item.image_url" [alt]="item.name" class="item-img" />
+        } @else {
+          <div class="item-img-placeholder">
+            <mat-icon>{{ getCategoryInfo(item.category).icon }}</mat-icon>
+          </div>
+        }
+        <mat-card-content>
+          <div class="item-header">
+            <div class="item-cat-badge" [attr.data-cat]="item.category">
+              {{ getCategoryInfo(item.category).label }}
+            </div>
+            @if (item.subcategory) {
+              <span class="item-subcat">{{ item.subcategory }}</span>
+            }
+          </div>
+          <h3 class="item-name">{{ item.name }}</h3>
+          @if (item.description) {
+            <p class="item-desc">{{ item.description }}</p>
+          }
+          <div class="item-footer">
+            <span class="item-price">{{ formatCurrency(item.price) }}</span>
+            <div class="item-toggle" [matTooltip]="item.available ? 'Disponível' : 'Indisponível'">
+              <mat-slide-toggle
+                [checked]="item.available"
+                (change)="toggleAvailable(item)"
+                color="primary">
+              </mat-slide-toggle>
+            </div>
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-icon-button color="primary" (click)="openForm(item)" matTooltip="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteItem(item)" matTooltip="Remover">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    }
+  </div>
+
+</div>
+
+<!-- Side panel form -->
+@if (showForm) {
+  <div class="form-overlay" (click)="closeForm()"></div>
+  <div class="form-panel">
+    <div class="form-panel-header">
+      <h3>{{ editingItem ? 'Editar item' : 'Novo item' }}</h3>
+      <button mat-icon-button (click)="closeForm()"><mat-icon>close</mat-icon></button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form-body">
+
+      <mat-form-field appearance="outline">
+        <mat-label>Nome *</mat-label>
+        <input matInput formControlName="name" placeholder="Ex: Frango Grelhado" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Descrição</mat-label>
+        <textarea matInput formControlName="description" rows="2" placeholder="Ingredientes, preparo..."></textarea>
+      </mat-form-field>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Preço (R$) *</mat-label>
+          <input matInput type="number" formControlName="price" min="0" step="0.01" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Categoria *</mat-label>
+          <mat-select formControlName="category">
+            @for (cat of categories; track cat.value) {
+              <mat-option [value]="cat.value">{{ cat.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Subcategoria</mat-label>
+        <input matInput formControlName="subcategory" placeholder="Ex: Prato Principal, Entrada..." />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>URL da Imagem</mat-label>
+        <input matInput formControlName="image_url" placeholder="https://..." />
+        <mat-icon matSuffix>image</mat-icon>
+      </mat-form-field>
+
+      <div class="toggle-row">
+        <span>Disponível no cardápio</span>
+        <mat-slide-toggle formControlName="available" color="primary"></mat-slide-toggle>
+      </div>
+
+      <div class="form-actions">
+        <button mat-stroked-button type="button" (click)="closeForm()">Cancelar</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || saving">
+          @if (saving) { <mat-spinner diameter="18"></mat-spinner> }
+          @else { {{ editingItem ? 'Salvar' : 'Criar item' }} }
+        </button>
+      </div>
+    </form>
+  </div>
+}

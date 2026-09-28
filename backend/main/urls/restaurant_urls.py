@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from main.views.restaurant_views import (
     ManagerRestaurantListCreateView,
     ManagerRestaurantDetailView,
@@ -7,6 +7,7 @@ from main.views.restaurant_views import (
     AdminRestaurantListView,
     AdminRestaurantTransferView,
 )
+from main.urls.comanda_urls import restaurant_patterns
 
 urlpatterns = [
     # Public routes
@@ -18,4 +19,6 @@ urlpatterns = [
     # Protected manager routes
     path('', ManagerRestaurantListCreateView.as_view(), name='restaurant-list-create'),
     path('<int:pk>/', ManagerRestaurantDetailView.as_view(), name='restaurant-detail'),
+    # Comanda / menu / table / staff-token routes
+    path('<int:pk>/', include(restaurant_patterns)),
 ]

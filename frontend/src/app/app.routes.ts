@@ -23,6 +23,7 @@ export const routes: Routes = [
       { path: 'restaurantes', loadComponent: () => import('./features/admin/restaurants/restaurants').then(m => m.RestaurantsComponent) },
       { path: 'chamados', loadComponent: () => import('./features/admin/bug-reports/bug-reports').then(m => m.BugReportsComponent) },
       { path: 'filas', loadComponent: () => import('./features/admin/queues/queues').then(m => m.QueuesComponent) },
+      { path: 'categorias', loadComponent: () => import('./features/admin/categories/categories').then(m => m.CategoriesComponent) },
     ],
   },
   {
@@ -36,7 +37,14 @@ export const routes: Routes = [
       { path: 'restaurantes/criar', loadComponent: () => import('./features/restaurant/create-restaurant/create-restaurant').then(m => m.CreateRestaurantComponent) },
       { path: 'fila/:id', loadComponent: () => import('./features/manager/my-queue/my-queue').then(m => m.MyQueueComponent) },
       { path: 'chamados', loadComponent: () => import('./features/manager/open-report/open-report').then(m => m.OpenReportComponent) },
+      { path: 'restaurantes/:id/categorias', loadComponent: () => import('./features/manager/restaurant-categories/restaurant-categories').then(m => m.RestaurantCategoriesComponent) },
+      { path: 'cardapio', loadComponent: () => import('./features/manager/menu/menu').then(m => m.MenuComponent) },
+      { path: 'comandas', loadComponent: () => import('./features/manager/comandas/comandas').then(m => m.ComandasComponent) },
     ],
+  },
+  {
+    path: 'garcom/:token',
+    loadComponent: () => import('./features/waiter/waiter').then(m => m.WaiterComponent),
   },
   { path: '**', redirectTo: 'login' },
 ];
